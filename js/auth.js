@@ -1,9 +1,13 @@
 window.Auth = (() => {
   let currentUser = null;
   let currentRole = null;
+  let authResolved = false;
   const listeners = [];
 
-  function onChange(fn) { listeners.push(fn); }
+  function onChange(fn) {
+    listeners.push(fn);
+    if (authResolved) fn(currentUser); // fire immediately if auth already resolved
+  }
 
   auth.onAuthStateChanged(async user => {
     if (user) {
@@ -19,6 +23,7 @@ window.Auth = (() => {
       currentUser = null;
       currentRole = null;
     }
+    authResolved = true;
     listeners.forEach(fn => fn(currentUser));
   });
 
